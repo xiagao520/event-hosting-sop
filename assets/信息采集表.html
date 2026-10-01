@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赛事信息采集表 · event-hosting-sop</title>
+<style>
+  :root{
+    --blue:#1a365d; --blue2:#2c5282; --orange:#ed8936; --light:#eaf0f6;
+    --ink:#2d3748; --muted:#718096; --line:#d7e0ea; --bg:#f4f7fb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:15px;line-height:1.6;}
+  header{background:var(--blue);color:#fff;padding:22px 20px;}
+  header h1{margin:0;font-size:20px;}
+  header p{margin:6px 0 0;font-size:13px;opacity:.85;}
+  .wrap{max-width:860px;margin:0 auto;padding:20px 16px 90px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin-bottom:18px;}
+  .card h2{margin:0 0 4px;font-size:16px;color:var(--blue);display:flex;align-items:center;gap:8px;}
+  .card h2 .no{background:var(--orange);color:#fff;width:24px;height:24px;border-radius:6px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:13px;}
+  .card .sub{font-size:12.5px;color:var(--muted);margin:0 0 16px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;}
+  .grid .full{grid-column:1 / -1;}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:#445064;}
+  label .req{color:#e53e3e;margin-left:2px;}
+  input[type=text],input[type=number],input[type=date],input[type=time],textarea,select{
+    width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:7px;font-size:14px;
+    font-family:inherit;color:var(--ink);background:#fdfdfe;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--blue2);background:#fff;}
+  textarea{resize:vertical;min-height:72px;}
+  .row-item{border:1px dashed var(--line);border-radius:8px;padding:14px;margin-bottom:12px;background:#fafcfe;}
+  .row-item .rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .row-item .rhead b{font-size:13px;color:var(--blue2);}
+  .btn{cursor:pointer;border:none;border-radius:7px;font-size:13.5px;padding:8px 14px;font-family:inherit;}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--blue2);}
+  .btn-del{background:#fff0ed;color:#e53e3e;border:1px solid #f7c4bb;padding:4px 10px;font-size:12px;}
+  .btn-add{background:var(--light);color:var(--blue);border:1px dashed #aebfd2;width:100%;padding:10px;}
+  .hint{font-size:12px;color:var(--muted);margin-top:4px;}
+  .sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+    padding:12px 16px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+    box-shadow:0 -4px 16px rgba(26,54,93,.08);}
+  .btn-primary{background:var(--orange);color:#fff;font-weight:600;padding:11px 22px;font-size:15px;}
+  .btn-secondary{background:var(--blue);color:#fff;padding:11px 18px;font-size:14px;}
+  .btn-tertiary{background:#fff;color:var(--blue);border:1px solid var(--line);padding:11px 16px;font-size:14px;}
+  .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;
+    padding:10px 18px;border-radius:8px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:99;}
+  .toast.show{opacity:1;}
+  .groups-box{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  .grp-tag{background:var(--light);border:1px solid #c3d2e2;border-radius:20px;padding:3px 12px;font-size:12.5px;
+    display:inline-flex;align-items:center;gap:6px;}
+  .grp-tag span{cursor:pointer;color:#e53e3e;font-weight:bold;}
+  @media(max-width:600px){.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏅 赛事信息采集表</h1>
+  <p>填好后点底部「导出赛事信息.json」，交给办赛流水线即可生成策划方案、海报、报名系统、6张表和秩序册。</p>
+</header>
+
+<div class="wrap">
+  <form id="f">
+    <!-- 1 基本信息 -->
+    <div class="card">
+      <h2><span class="no">1</span>赛事基本信息</h2>
+      <p class="sub">名称会出现在海报、秩序册、报名页等所有物料上，请填全称。</p>
+      <div class="grid">
+        <div class="full"><label>赛事活动名称<span class="req">*</span></label>
+          <input type="text" id="event_name" placeholder="如：2026 老夏杯青少年篮球邀请赛"></div>
+        <div class="full"><label>赛事主题 / Slogan</label>
+          <input type="text" id="event_slogan" placeholder="如：以球会友，热血开打"></div>
+        <div><label>主办方<span class="req">*</span></label>
+          <input type="text" id="organizer" placeholder="如：XX体育文化有限公司"></div>
+        <div><label>承办方（可不填）</label>
+          <input type="text" id="undertaker" placeholder="如：XX篮球俱乐部"></div>
+      </div>
+      <div style="margin-top:14px">
+        <label>协办 / 支持 / 赞助单位</label>
+        <div id="coBox"></div>
+        <button type="button" class="btn-add" onclick="addCo()">＋ 添加协办 / 赞助单位</button>
+      </div>
+    </div>
+
+    <!-- 2 时间地点 -->
+    <div class="card">
+      <h2><span class="no">2</span>时间与场地信息</h2>
+      <div class="grid">
+        <div><label>比赛日期<span class="req">*</span></label><input type="date" id="event_date"></div>
+        <div><label>开始 / 结束时间</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="time" id="time_start"><span style="color:var(--muted)">至</span>
+            <input type="time" id="time_end"></div></div>
+        <div><label>场地名称<span class="req">*</span></label>
+          <input type="text" id="venue_name" placeholder="如：XX商场中庭 / XX体育中心"></div>
+        <div><label>场地类型</label>
+          <select id="venue_type">
+            <option>自有场馆</option><option>商场中庭</option><option>学校操场/体育馆</option>
+            <option>公共体育中心</option><option>户外广场/公园</option><option>其他</option>
+          </select></div>
+        <div class="full"><label>场地详细地址</label>
+          <input type="text" id="venue_address" placeholder="如：XX市XX区XX路XX号"></div>
+        <div><label>可用场地 / 片数（如篮球场2片）</label>
+          <input type="text" id="venue_courts" placeholder="如：标准篮球场2片"></div>
+        <div><label>场地对接人 / 电话</label>
+          <input type="text" id="venue_contact" placeholder="如：王经理 138****0000"></div>
+      </div>
+    </div>
+
+    <!-- 3 赛事项目 -->
+    <div class="card">
+      <h2><span class="no">3</span>赛事项目信息</h2>
+      <p class="sub">可添加多个比赛项目，每个项目可设多个组别。</p>
+      <div id="sportBox"></div>
+      <button type="button" class="btn-add" onclick="addSport()">＋ 添加比赛项目</button>
+    </div>
+
+    <!-- 4 规模预算 -->
+    <div class="card">
+      <h2><span class="no">4</span>人数规模与预算</h2>
+      <div class="grid">
+        <div><label>预计参赛人数（人）<span class="req">*</span></label>
+          <input type="number" id="p_athletes" min="0" placeholder="如：60"></div>
+        <div><label>预计参赛队伍（队）</label>
+          <input type="number" id="p_teams" min="0" placeholder="如：12"></div>
+        <div><label>预计到场观众（人）</label>
+          <input type="number" id="p_audience" min="0" placeholder="如：200"></div>
+        <div><label>年龄范围</label>
+          <input type="text" id="p_age" placeholder="如：6-12岁 / 成人"></div>
+        <div><label>总预算（元）<span class="req">*</span></label>
+          <input type="number" id="budget" min="0" placeholder="如：12000"></div>
+        <div><label>报名费（元/人，0为免费）</label>
+          <input type="number" id="fee" min="0" value="0"></div>
+      </div>
+    </div>
+
+    <!-- 5 编排方案 -->
+    <div class="card">
+      <h2><span class="no">5</span>赛事项目编排方案</h2>
+      <p class="sub">描述赛制、晋级规则、赛程安排等，越详细秩序册和策划方案越准确。</p>
+      <div class="grid">
+        <div><label>赛制</label>
+          <select id="format">
+            <option>小组循环+淘汰赛</option><option>单循环积分赛</option>
+            <option>单败淘汰赛</option><option>双败淘汰赛</option>
+            <option>自由报名/趣味赛</option><option>其他</option>
+          </select></div>
+        <div><label>积分 / 计分办法</label>
+          <input type="text" id="scoring" placeholder="如：胜2分负1分，平分看相互战绩"></div>
+        <div class="full"><label>赛程编排方案 / 晋级规则</label>
+          <textarea id="schedule_plan" placeholder="如：分4组单循环，每组前2名晋级八强，交叉淘汰决出冠亚季军；每场2节各10分钟……"></textarea></div>
+        <div class="full"><label>奖项设置</label>
+          <input type="text" id="awards" placeholder="如：冠亚季军奖杯+证书，另设MVP、最佳拼搏奖"></div>
+        <div class="full"><label>其他补充说明（免责、装备要求、停车等）</label>
+          <textarea id="extra" placeholder="如：参赛者需自带运动装备，主办方统一购买意外险……"></textarea></div>
+      </div>
+    </div>
+
+    <!-- 6 联系方式 -->
+    <div class="card">
+      <h2><span class="no">6</span>报名联系方式</h2>
+      <div class="grid">
+        <div><label>联系人</label><input type="text" id="contact_name" placeholder="如：老夏"></div>
+        <div><label>联系电话</label><input type="text" id="contact_phone" placeholder="如：138****0000"></div>
+        <div class="full"><label>微信号</label><input type="text" id="contact_wechat" placeholder="如：laoxia-tiyu"></div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="sticky">
+  <button type="button" class="btn-primary" onclick="exportJSON()">⬇️ 导出赛事信息.json</button>
+  <button type="button" class="btn-secondary" onclick="copyJSON()">📋 复制JSON</button>
+  <button type="button" class="btn-tertiary" onclick="saveDraft()">💾 存草稿</button>
+  <button type="button" class="btn-tertiary" onclick="loadDraft()">📂 读草稿</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let coIdx=0, sportIdx=0;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+
+/* 协办单位 */
+function addCo(val){
+  coIdx++;
+  const box=document.getElementById('coBox');
+  const d=document.createElement('div');
+  d.className='row-item';d.dataset.co=coIdx;
+  d.innerHTML=`<div class="rhead"><b>协办 / 赞助单位 ${coIdx}</b>
+      <button type="button" class="btn-del" onclick="this.closest('.row-item').remove()">删除</button></div>
+      <div class="grid">
+        <div><label>单位名称</label><input type="text" class="co-name" value="${val||''}" placeholder="如：XX商场"></div>
+        <div><label>角色</label>
+          <select class="co-role"><option>协办方</option><option>支持单位</option>
+          <option>冠名赞助</option><option>赞助商</option><option>媒体支持</option></select></div>
+      </div>`;
+  box.appendChild(d);
+}
+
+/* 比赛项目 + 组别 */
+function addSport(data){
+  sportIdx++;
+  const box=document.getElementById('sportBox');
+  const d=document.createElement('div');
+  d.className='row-item';d.dataset.sport=sportIdx;
+  d.innerHTML=`
+    <div class="rhead"><b>比赛项目 ${sportIdx}</b>
+      <button type="button" class="btn-del" onclick="this.closest('.row-item').remove()">删除</button></div>
+    <div class="grid">
+      <div><label>项目名称<span class="req">*</span></label>
+        <input type="text" class="sp-name" placeholder="如：篮球 / 足球 / 亲子接力"></div>
+      <div><label>赛制</label>
+        <select class="sp-format"><option>小组循环+淘汰</option><option>单循环</option>
+          <option>单败淘汰</option><option>趣味/积分</option></select></div>
+      <div><label>报名费(元/人)</label><input type="number" class="sp-fee" min="0" value="0"></div>
+      <div><label>每队人数(团体赛填)</label><input type="text" class="sp-teamsize" placeholder="如：5人制"></div>
+      <div class="full"><label>项目规则要点</label>
+        <textarea class="sp-rules" style="min-height:56px" placeholder="如：采用中国篮协最新小篮球规则……"></textarea></div>
+    </div>
+    <label style="margin-top:8px">分组（点 × 删除）</label>
+    <div class="groups-box sp-groups"></div>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <input type="text" class="grp-input" placeholder="输入组别名，如 U8 / U10 / 成人组" style="flex:1">
+      <button type="button" class="btn btn-ghost" onclick="addGroup(this)">添加组别</button>
+    </div>`;
+  box.appendChild(d);
+  if(data){
+    d.querySelector('.sp-name').value=data.name||'';
+    d.querySelector('.sp-format').value=data.format||'小组循环+淘汰';
+    d.querySelector('.sp-fee').value=data.fee!=null?data.fee:0;
+    d.querySelector('.sp-teamsize').value=data.team_size||'';
+    d.querySelector('.sp-rules').value=data.rules||'';
+    (data.groups||[]).forEach(g=>addTag(d.querySelector('.sp-groups'),g));
+  }
+}
+function addGroup(btn){
+  const inp=btn.previousElementSibling;
+  const v=inp.value.trim();if(!v)return;
+  const box=btn.closest('.row-item').querySelector('.sp-groups');
+  addTag(box,v);inp.value='';inp.focus();
+}
+function addTag(box,v){
+  const t=document.createElement('span');t.className='grp-tag';
+  t.innerHTML=`${v}<span onclick="this.parentElement.remove()">×</span>`;
+  box.appendChild(t);
+}
+
+function collect(){
+  const val=id=>document.getElementById(id).value.trim();
+  const sports=[...document.querySelectorAll('#sportBox .row-item')].map(d=>({
+    name:d.querySelector('.sp-name').value.trim(),
+    format:d.querySelector('.sp-format').value,
+    fee:Number(d.querySelector('.sp-fee').value||0),
+    team_size:d.querySelector('.sp-teamsize').value.trim(),
+    rules:d.querySelector('.sp-rules').value.trim(),
+    groups:[...d.querySelectorAll('.sp-groups .grp-tag')].map(t=>t.textContent.replace('×','').trim())
+  })).filter(s=>s.name);
+  const co=[...document.querySelectorAll('#coBox .row-item')].map(d=>({
+    name:d.querySelector('.co-name').value.trim(),
+    role:d.querySelector('.co-role').value
+  })).filter(c=>c.name);
+  return {
+    meta:{tool:"event-hosting-sop",schema:1},
+    event:{
+      name:val('event_name'), slogan:val('event_slogan'),
+      organizer:val('organizer'), undertaker:val('undertaker'),
+      co_organizers:co,
+      date:val('event_date'),
+      time_start:val('time_start'), time_end:val('time_end'),
+      venue:{
+        name:val('venue_name'), type:val('venue_type'), address:val('venue_address'),
+        courts:val('venue_courts'), contact:val('venue_contact')
+      },
+      sports:sports,
+      format:val('format'), scoring:val('scoring'),
+      schedule_plan:val('schedule_plan'), awards:val('awards'), extra:val('extra'),
+      participants:{
+        athletes:Number(val('p_athletes')||0), teams:Number(val('p_teams')||0),
+        audience:Number(val('p_audience')||0), age_range:val('p_age')
+      },
+      budget:Number(val('budget')||0), fee:Number(val('fee')||0),
+      contact:{name:val('contact_name'),phone:val('contact_phone'),wechat:val('contact_wechat')}
+    }
+  };
+}
+function validate(){
+  const e=collect().event;
+  const miss=[];
+  if(!e.name)miss.push('赛事名称');
+  if(!e.organizer)miss.push('主办方');
+  if(!e.date)miss.push('比赛日期');
+  if(!e.venue.name)miss.push('场地名称');
+  if(!e.participants.athletes)miss.push('参赛人数');
+  if(!e.budget)miss.push('总预算');
+  if(sportsMissing())miss.push('至少一个比赛项目名称');
+  if(miss.length){toast('请补全：'+miss.join('、'));return false;}
+  return true;
+}
+function sportsMissing(){
+  return [...document.querySelectorAll('#sportBox .row-item')]
+    .every(d=>!d.querySelector('.sp-name').value.trim());
+}
+function download(filename,text){
+  const blob=new Blob([text],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=filename;a.click();URL.revokeObjectURL(a.href);
+}
+function exportJSON(){if(validate()){download('赛事信息.json',JSON.stringify(collect(),null,2));toast('已导出 赛事信息.json');}}
+function copyJSON(){
+  if(!validate())return;
+  const text=JSON.stringify(collect(),null,2);
+  if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>toast('JSON已复制'));}
+  else{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);
+    ta.select();document.execCommand('copy');ta.remove();toast('JSON已复制');}
+}
+function saveDraft(){localStorage.setItem('eh_draft',JSON.stringify(collect()));toast('草稿已保存在本浏览器');}
+function loadDraft(){
+  const raw=localStorage.getItem('eh_draft');if(!raw){toast('没有找到草稿');return;}
+  fill(JSON.parse(raw));toast('草稿已载入');
+}
+function fill(data){
+  const e=data.event;
+  document.getElementById('event_name').value=e.name||'';
+  document.getElementById('event_slogan').value=e.slogan||'';
+  document.getElementById('organizer').value=e.organizer||'';
+  document.getElementById('undertaker').value=e.undertaker||'';
+  document.getElementById('event_date').value=e.date||'';
+  document.getElementById('time_start').value=e.time_start||'';
+  document.getElementById('time_end').value=e.time_end||'';
+  document.getElementById('venue_name').value=e.venue.name||'';
+  document.getElementById('venue_type').value=e.venue.type||'自有场馆';
+  document.getElementById('venue_address').value=e.venue.address||'';
+  document.getElementById('venue_courts').value=e.venue.courts||'';
+  document.getElementById('venue_contact').value=e.venue.contact||'';
+  document.getElementById('p_athletes').value=e.participants.athletes||'';
+  document.getElementById('p_teams').value=e.participants.teams||'';
+  document.getElementById('p_audience').value=e.participants.audience||'';
+  document.getElementById('p_age').value=e.participants.age_range||'';
+  document.getElementById('budget').value=e.budget||'';
+  document.getElementById('fee').value=e.fee||0;
+  document.getElementById('format').value=e.format||'小组循环+淘汰赛';
+  document.getElementById('scoring').value=e.scoring||'';
+  document.getElementById('schedule_plan').value=e.schedule_plan||'';
+  document.getElementById('awards').value=e.awards||'';
+  document.getElementById('extra').value=e.extra||'';
+  document.getElementById('contact_name').value=e.contact.name||'';
+  document.getElementById('contact_phone').value=e.contact.phone||'';
+  document.getElementById('contact_wechat').value=e.contact.wechat||'';
+  document.getElementById('coBox').innerHTML='';
+  (e.co_organizers||[]).forEach(c=>addCo(c.name));
+  document.getElementById('sportBox').innerHTML='';
+  (e.sports||[]).forEach(s=>addSport(s));
+}
+/* 默认一个项目，方便填写 */
+addSport();
+</script>
+</body>
+</html>

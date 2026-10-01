@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赛事报名 · 2026 老夏杯青少年篮球邀请赛</title>
+<style>
+  :root{--blue:#1a365d;--blue2:#2c5282;--orange:#ed8936;--light:#eaf0f6;
+    --ink:#2d3748;--muted:#718096;--line:#d7e0ea;--bg:#f4f7fb;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:15px;}
+  .hero{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;padding:30px 20px;}
+  .hero .in{max-width:760px;margin:0 auto;}
+  .hero h1{margin:0 0 6px;font-size:23px;}
+  .hero p{margin:3px 0;font-size:14px;opacity:.92;}
+  .wrap{max-width:760px;margin:-14px auto 40px;padding:0 16px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:16px;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:560px){.grid{grid-template-columns:1fr;}}
+  label{display:block;font-size:13.5px;font-weight:600;margin-bottom:5px;color:#445064;}
+  label .req{color:#e53e3e;}
+  input,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-family:inherit;}
+  input:focus,select:focus{outline:none;border-color:var(--blue2);}
+  .btn{width:100%;background:var(--orange);color:#fff;border:none;border-radius:9px;
+    padding:13px;font-size:16px;font-weight:700;cursor:pointer;}
+  .chk{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:#555;margin:14px 0;}
+  .chk input{width:auto;margin-top:3px;}
+  .tabs{display:flex;gap:0;margin:18px 0 0;border-radius:10px;overflow:hidden;border:1px solid var(--line);}
+  .tab{flex:1;text-align:center;padding:12px;background:#fff;cursor:pointer;font-size:14.5px;font-weight:600;color:var(--blue2);}
+  .tab.active{background:var(--blue);color:#fff;}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;background:#fff;}
+  th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;white-space:nowrap;}
+  th{background:var(--blue);color:#fff;position:sticky;top:0;}
+  .tablewrap{overflow:auto;max-height:60vh;border:1px solid var(--line);border-radius:10px;}
+  .adminbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .abtn{background:var(--light);color:var(--blue);border:1px solid #c3d2e2;border-radius:8px;
+    padding:9px 14px;font-size:13.5px;cursor:pointer;}
+  .abtn.danger{background:#fff0ed;color:#c0392b;border-color:#f0c4bb;}
+  .muted{color:var(--muted);font-size:13px;}
+  .ok{background:#eafaf0;border:1px solid #bfe3c8;border-radius:10px;padding:18px;text-align:center;display:none;}
+  .ok h3{color:#2f855a;margin:0 0 6px;}
+  .stat{display:inline-block;background:var(--light);border-radius:8px;padding:6px 14px;margin:0 6px 8px 0;font-size:13.5px;}
+  .login{max-width:340px;margin:40px auto;text-align:center;}
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="hero"><div class="in">
+  <h1 id="h_name"></h1>
+  <p id="h_slogan"></p>
+  <p>🗓 <span id="h_date"></span> &nbsp; 📍 <span id="h_venue"></span></p>
+</div></div>
+
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab active" id="tabReg" onclick="showTab('reg')">🙋 我要报名</div>
+    <div class="tab" id="tabAdmin" onclick="askAdmin()">🔐 名单管理</div>
+  </div>
+
+  <!-- 报名 -->
+  <div id="paneReg">
+    <div class="card">
+      <div class="ok" id="okBox">
+        <h3>✅ 报名成功！</h3>
+        <p>你的报名号：<b id="okNo" style="font-size:20px;color:var(--orange)"></b></p>
+        <p class="muted" id="okTip"></p>
+      </div>
+      <form id="regForm">
+        <div class="grid">
+          <div><label>姓名<span class="req">*</span></label><input type="text" id="r_name" required></div>
+          <div><label>性别<span class="req">*</span></label>
+            <select id="r_gender"><option>男</option><option>女</option></select></div>
+          <div><label>年龄<span class="req">*</span></label><input type="number" id="r_age" min="1" required></div>
+          <div><label>身份证后4位（投保用，选填）</label><input type="text" id="r_id4" maxlength="4" inputmode="numeric"></div>
+          <div><label>比赛项目<span class="req">*</span></label><select id="r_sport" onchange="syncGroups()"></select></div>
+          <div><label>参赛组别<span class="req">*</span></label><select id="r_group"></select></div>
+          <div><label>联系电话<span class="req">*</span></label><input type="tel" id="r_phone" required></div>
+          <div><label>监护人姓名（未成年必填）</label><input type="text" id="r_guardian"></div>
+          <div style="grid-column:1/-1"><label>紧急联系电话<span class="req">*</span></label>
+            <input type="tel" id="r_emergency" required></div>
+        </div>
+        
+      <div class="grid">
+        <div><label>所属队伍 / 俱乐部（选填）</label>
+          <input type="text" id="r_team" placeholder="如：小飞侠队"></div>
+        <div><label>球衣号码（选填）</label>
+          <input type="text" id="r_jersey" inputmode="numeric" placeholder="如：23"></div>
+      </div>
+        <div style="margin-top:14px"><label>既往病史 / 过敏 / 需要主办方知悉的健康情况（选填）</label>
+          <input type="text" id="r_health" placeholder="无则填“无”"></div>
+        <label class="chk"><input type="checkbox" id="r_agree" required>
+          <span>我确认本人身体健康、适合参加本赛事，自愿承担运动风险；同意主办方为本人购买赛事意外险，
+          并授权主办方在赛事范围内使用现场拍摄的影像资料。</span></label>
+        <button type="submit" class="btn">提交报名</button>
+      </form>
+      <p class="muted" style="margin-top:14px">报名咨询：<span id="h_contact"></span></p>
+    </div>
+  </div>
+
+  <!-- 后台 -->
+  <div id="paneAdmin" class="hidden">
+    <div class="login" id="loginBox">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--blue)">名单管理</h3>
+        <p class="muted">请输入管理密码（默认 eh2026）</p>
+        <input type="password" id="adminPw" placeholder="管理密码" style="margin-bottom:10px">
+        <button class="btn" onclick="login()">进入</button>
+      </div>
+    </div>
+    <div id="adminPanel" class="hidden">
+      <div style="margin:16px 0">
+        <span class="stat">已报名 <b id="stCount">0</b> 人</span>
+        <span class="stat">名额参考 <b id="stCap">—</b></span>
+      </div>
+      <div class="adminbar">
+        <button class="abtn" onclick="exportCSV()">⬇️ 导出CSV（投保/编排）</button>
+        <button class="abtn" onclick="copyAll()">📋 复制名单JSON</button>
+        <button class="abtn danger" onclick="clearAll()">🗑 清空名单</button>
+        <button class="abtn" onclick="logout()">🔒 锁定</button>
+      </div>
+      <div class="tablewrap">
+        <table id="tbl">
+          <thead><tr>
+            <th>报名号</th><th>姓名</th><th>性别</th><th>年龄</th><th>项目</th><th>组别</th>
+            <th>队伍</th><th>电话</th><th>监护人</th><th>紧急电话</th><th>健康</th><th>时间</th><th></th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p class="muted" style="margin-top:12px">名单保存在本浏览器（localStorage）。单文件离线版适合一台设备集中登记；如需多人多设备实时汇总，需要把本页对接到后端服务。</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const CFG = {"event_name": "2026 老夏杯青少年篮球邀请赛", "slogan": "以球会友，热血开打", "date": "2026-10-25", "time": "09:00–12:00", "venue": "万象城一楼中庭", "address": "XX市XX区解放大道888号万象城", "sports": [{"name": "篮球", "groups": ["U8", "U10", "U12"]}], "fee": 0, "age_range": "6-12岁", "capacity": 60, "contact_name": "老夏", "contact_phone": "13800001111", "contact_wechat": "laoxia-tiyu"};
+const KEY = 'eh_registrations_' + encodeURIComponent(CFG.event_name);
+let rows = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+function $(id){return document.getElementById(id);}
+function showTab(t){
+  if(t==='reg'){
+    $('paneReg').classList.remove('hidden');$('paneAdmin').classList.add('hidden');
+    $('tabReg').classList.add('active');$('tabAdmin').classList.remove('active');
+  }
+}
+function askAdmin(){
+  $('paneReg').classList.add('hidden');$('paneAdmin').classList.remove('hidden');
+  $('tabAdmin').classList.add('active');$('tabReg').classList.remove('active');
+  if(sessionStorage.getItem('eh_admin')){$('loginBox').classList.add('hidden');$('adminPanel').classList.remove('hidden');render();}
+}
+
+/* 初始化展示 */
+$('h_name').textContent = CFG.event_name;
+$('h_slogan').textContent = CFG.slogan || '';
+$('h_date').textContent = (CFG.date||'') + ' ' + (CFG.time||'');
+$('h_venue').textContent = CFG.venue + (CFG.address?' ('+CFG.address+')':'');
+$('h_contact').textContent = (CFG.contact_name||'') + ' ' + (CFG.contact_phone||'') +
+  (CFG.contact_wechat?' 微信'+CFG.contact_wechat:'');
+$('stCap').textContent = CFG.capacity ? CFG.capacity+' 人' : '不限';
+
+/* 项目 / 组别下拉 */
+const spSel = $('r_sport');
+CFG.sports.forEach(s=>{const o=document.createElement('option');o.value=s.name;o.textContent=s.name;spSel.appendChild(o);});
+function syncGroups(){
+  const name = $('r_sport').value;
+  const sp = CFG.sports.find(s=>s.name===name);
+  const g = $('r_group');g.innerHTML='';
+  (sp&&sp.groups&&sp.groups.length?sp.groups:['不分组']).forEach(x=>{
+    const o=document.createElement('option');o.value=x;o.textContent=x;g.appendChild(o);});
+}
+syncGroups();
+
+/* 提交 */
+$('regForm').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  const age = Number($('r_age').value);
+  if(CFG.age_range){/* 不强制拦截，仅参考 */}
+  const teamEl = document.getElementById('r_team');
+  const rec = {
+    no: 'E' + String(rows.length+1).padStart(3,'0'),
+    name:$('r_name').value.trim(), gender:$('r_gender').value, age:age,
+    id4:$('r_id4').value.trim(), sport:$('r_sport').value, group:$('r_group').value,
+    phone:$('r_phone').value.trim(), guardian:$('r_guardian').value.trim(),
+    emergency:$('r_emergency').value.trim(),
+    team: teamEl?teamEl.value.trim():'',
+    jersey: (document.getElementById('r_jersey')||{value:''}).value,
+    health:$('r_health').value.trim()||'无',
+    time:new Date().toLocaleString('zh-CN')
+  };
+  if(age<18 && !rec.guardian){alert('未成年参赛者请填写监护人姓名');return;}
+  rows.push(rec);localStorage.setItem(KEY,JSON.stringify(rows));
+  $('regForm').style.display='none';
+  $('okNo').textContent=rec.no;
+  $('okTip').textContent = '请记好报名号；如需修改或咨询，请联系 '+(CFG.contact_name||'主办方')+' '+(CFG.contact_phone||'');
+  $('okBox').style.display='block';
+});
+
+/* 后台 */
+function login(){
+  if($('adminPw').value==='eh2026'){
+    sessionStorage.setItem('eh_admin','1');
+    $('loginBox').classList.add('hidden');$('adminPanel').classList.remove('hidden');render();
+  }else{alert('密码错误');}
+}
+function logout(){sessionStorage.removeItem('eh_admin');
+  $('adminPanel').classList.add('hidden');$('loginBox').classList.remove('hidden');$('adminPw').value='';}
+function render(){
+  $('stCount').textContent=rows.length;
+  const tb=$('tbody');tb.innerHTML='';
+  rows.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.no}</td><td>${r.name}</td><td>${r.gender}</td><td>${r.age}</td>
+      <td>${r.sport}</td><td>${r.group}</td><td>${r.team||''}</td><td>${r.phone}</td>
+      <td>${r.guardian||''}</td><td>${r.emergency}</td><td>${r.health}</td><td>${r.time}</td>
+      <td><button class="abtn danger" onclick="del(${i})">删</button></td>`;
+    tb.appendChild(tr);
+  });
+}
+function del(i){if(confirm('确认删除 '+rows[i].name+' 的报名？')){rows.splice(i,1);localStorage.setItem(KEY,JSON.stringify(rows));render();}}
+function clearAll(){if(confirm('将清空全部报名名单，且不可恢复，确认？')){rows=[];localStorage.setItem(KEY,'[]');render();}}
+
+function csvCell(v){v=(v==null?'':String(v));return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function exportCSV(){
+  const heads=['报名号','姓名','性别','年龄','身份证后4位','项目','组别','队伍','球衣号','电话','监护人','紧急电话','健康情况','报名时间'];
+  const lines=[heads.join(',')];
+  rows.forEach(r=>lines.push([r.no,r.name,r.gender,r.age,r.id4,r.sport,r.group,r.team,r.jersey,r.phone,r.guardian,r.emergency,r.health,r.time].map(csvCell).join(',')));
+  const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=(CFG.event_name||'赛事')+'_报名名单.csv';a.click();
+}
+function copyAll(){navigator.clipboard.writeText(JSON.stringify(rows,null,2)).then(()=>alert('名单JSON已复制'));}
+</script>
+</body>
+</html>

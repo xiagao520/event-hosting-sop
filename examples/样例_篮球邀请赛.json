@@ -1,0 +1,47 @@
+{
+  "meta": { "tool": "event-hosting-sop", "schema": 1 },
+  "event": {
+    "name": "2026 老夏杯青少年篮球邀请赛",
+    "slogan": "以球会友，热血开打",
+    "organizer": "老夏聊体育文化有限公司",
+    "undertaker": "老夏篮球训练营",
+    "co_organizers": [
+      { "name": "万象城购物中心", "role": "协办方" },
+      { "name": "XX运动饮料", "role": "赞助商" }
+    ],
+    "date": "2026-10-25",
+    "time_start": "09:00",
+    "time_end": "12:00",
+    "venue": {
+      "name": "万象城一楼中庭",
+      "type": "商场中庭",
+      "address": "XX市XX区解放大道888号万象城",
+      "courts": "标准小篮球场1片",
+      "contact": "王经理 13800000000"
+    },
+    "sports": [
+      {
+        "name": "篮球",
+        "format": "小组循环+淘汰",
+        "fee": 0,
+        "team_size": "5人制（每队可报8人）",
+        "rules": "采用中国篮协《小篮球规则》，每场2节，每节10分钟，停表。",
+        "groups": ["U8", "U10", "U12"]
+      }
+    ],
+    "format": "小组循环+淘汰赛",
+    "scoring": "胜2分、负1分、弃权0分；同积分先比相互战绩，再比净胜分。",
+    "schedule_plan": "U8/U10/U12 三个组别分别进行。每组4队单循环取前2名，交叉淘汰决出冠亚季军。上午9:00开赛，12:00颁奖。",
+    "awards": "各组别冠亚季军：奖杯+证书；另设 MVP、最佳拼搏奖各1名。",
+    "extra": "参赛者需自备篮球鞋，建议自备护具；主办方统一购买赛事意外险；商场地下停车场可凭参赛信息领取停车优惠。",
+    "participants": {
+      "athletes": 60,
+      "teams": 12,
+      "audience": 200,
+      "age_range": "6-12岁"
+    },
+    "budget": 12000,
+    "fee": 0,
+    "contact": { "name": "老夏", "phone": "13800001111", "wechat": "laoxia-tiyu" }
+  }
+}
